@@ -1,68 +1,144 @@
 # MCP Reasoner
 
-A systematic reasoning MCP server implementation for Claude Desktop with beam search and thought evaluation capabilities.
+A Model Context Protocol (MCP) reasoner implementation with multiple reasoning strategies including Beam Search and Monte Carlo Tree Search (MCTS).
 
 ## Features
 
-- Beam search with configurable width
-- Thought scoring and evaluation
-- Tree-based reasoning paths
-- Statistical analysis of reasoning process
-- MCP protocol compliance
+- Multiple reasoning strategies:
+  - **Beam Search**: Maintains a fixed-width beam of most promising paths
+  - **Monte Carlo Tree Search**: Uses simulation-based search for complex reasoning
+- Flexible strategy switching during runtime
+- Comprehensive metrics and statistics
+- Efficient state management with LRU caching
+- TypeScript implementation with full type safety
 
 ## Installation
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/Jacck/mcp-reasoner.git
-cd mcp-reasoner
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Build the project:
-```bash
-npm run build
-```
-
-## Configuration
-
-Add to Claude Desktop config:
-```json
-{
-  "mcpServers": {
-    "mcp-reasoner": {
-      "command": "node",
-      "args": [
-        "path/to/mcp-reasoner/dist/index.js"
-      ]
-    }
-  }
-}
+npm install mcp-reasoner
 ```
 
 ## Usage
 
-The reasoner can be used with Claude Desktop for solving various problems requiring systematic thinking:
+```typescript
+import { Reasoner, ReasoningStrategy } from 'mcp-reasoner';
 
-- Mathematical problems
-- Logical puzzles
-- Step-by-step analysis
-- Complex problem decomposition
+// Create a new reasoner instance
+const reasoner = new Reasoner();
 
-## Algorithm
+// Use with default strategy (Beam Search)
+const response = await reasoner.processThought({
+  thought: "Initial thought",
+  thoughtNumber: 1,
+  totalThoughts: 3,
+  nextThoughtNeeded: true
+});
 
-The reasoner uses:
-1. Beam search to explore multiple solution paths
-2. Thought scoring based on:
-   - Detail level
-   - Mathematical expressions
-   - Logical connectors
-3. Tree-based state management
-4. Statistical analysis of reasoning process
+// Switch to MCTS strategy
+reasoner.setStrategy(ReasoningStrategy.MCTS);
+
+// Continue reasoning with MCTS
+const nextResponse = await reasoner.processThought({
+  thought: "Next thought",
+  thoughtNumber: 2,
+  totalThoughts: 3,
+  nextThoughtNeeded: true,
+  parentId: response.nodeId
+});
+
+// Get statistics
+const stats = await reasoner.getStats();
+console.log(stats);
+
+// Get best reasoning path
+const bestPath = await reasoner.getBestPath();
+console.log(bestPath);
+```
+
+## Reasoning Strategies
+
+### Beam Search
+
+The Beam Search strategy maintains a fixed-width beam of the most promising paths through the reasoning space. At each step:
+
+- Evaluates new thoughts
+- Keeps top N paths based on scoring
+- Prunes less promising branches
+- Optimizes for both exploration and exploitation
+
+Configuration options in `CONFIG`:
+- `beamWidth`: Number of paths to maintain (default: 3)
+- `minScore`: Minimum score threshold (default: 0.5)
+
+### Monte Carlo Tree Search (MCTS)
+
+MCTS uses simulation-based search to explore the reasoning space efficiently:
+
+1. **Selection**: Choose promising nodes using UCT
+2. **Expansion**: Create new thought nodes
+3. **Simulation**: Random rollouts to estimate value
+4. **Backpropagation**: Update node statistics
+
+Configuration options in `CONFIG`:
+- `maxDepth`: Maximum simulation depth (default: 5)
+- `numSimulations`: Simulations per step (default: 50)
+
+## Evaluation Metrics
+
+Thoughts are evaluated based on multiple factors:
+
+- Logical progression and coherence
+- Complexity and depth of reasoning
+- Mathematical/logical expressions
+- Parent-child relationship strength
+- Completion status
+
+## API Reference
+
+### Reasoner Class
+
+Main interface for reasoning operations:
+
+```typescript
+class Reasoner {
+  constructor();
+  
+  async processThought(request: ReasoningRequest): Promise<ReasoningResponse>;
+  async getStats(): Promise<ReasoningStats>;
+  async getBestPath(): Promise<ThoughtNode[]>;
+  setStrategy(strategy: ReasoningStrategy): void;
+  getAvailableStrategies(): ReasoningStrategy[];
+}
+```
+
+### Types
+
+```typescript
+interface ReasoningRequest {
+  thought: string;
+  thoughtNumber: number;
+  totalThoughts: number;
+  nextThoughtNeeded: boolean;
+  parentId?: string;
+  strategyType?: string;
+}
+
+interface ReasoningResponse {
+  nodeId: string;
+  thought: string;
+  score: number;
+  depth: number;
+  isComplete: boolean;
+  nextThoughtNeeded: boolean;
+  possiblePaths?: number;
+  bestScore?: number;
+  strategyUsed?: string;
+}
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

@@ -1,7 +1,6 @@
 class LRUCache {
-    cache = new Map();
-    maxSize;
     constructor(maxSize) {
+        this.cache = new Map();
         this.maxSize = maxSize;
     }
     get(key) {
@@ -14,21 +13,29 @@ class LRUCache {
         return value;
     }
     set(key, value) {
+        // Remove oldest if at capacity
         if (this.cache.size >= this.maxSize) {
-            // Remove oldest (first) entry
-            const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
+            const firstKey = Array.from(this.cache.keys())[0];
+            if (firstKey !== undefined) {
+                this.cache.delete(firstKey);
+            }
         }
+        // Add new value
         this.cache.set(key, value);
     }
     clear() {
         this.cache.clear();
     }
+    size() {
+        return this.cache.size;
+    }
+    has(key) {
+        return this.cache.has(key);
+    }
 }
 export class StateManager {
-    cache;
-    nodes = new Map();
     constructor(cacheSize) {
+        this.nodes = new Map();
         this.cache = new LRUCache(cacheSize);
     }
     async getNode(id) {
@@ -66,6 +73,9 @@ export class StateManager {
             currentId = node.parentId || '';
         }
         return path;
+    }
+    async getAllNodes() {
+        return Array.from(this.nodes.values());
     }
     clear() {
         this.nodes.clear();

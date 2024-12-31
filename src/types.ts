@@ -14,6 +14,7 @@ export interface ReasoningRequest {
   totalThoughts: number;
   nextThoughtNeeded: boolean;
   parentId?: string;   // For branching thoughts
+  strategyType?: string; // Strategy to use for reasoning
 }
 
 export interface ReasoningResponse {
@@ -25,6 +26,15 @@ export interface ReasoningResponse {
   nextThoughtNeeded: boolean;
   possiblePaths?: number;
   bestScore?: number;
+  strategyUsed?: string;
+}
+
+export interface ReasoningStats {
+  totalNodes: number;
+  averageScore: number;
+  maxDepth: number;
+  branchingFactor: number;
+  strategyMetrics?: Record<string, any>;
 }
 
 export const CONFIG = {
@@ -32,5 +42,6 @@ export const CONFIG = {
   maxDepth: 5,      // Reasonable depth limit
   minScore: 0.5,    // Threshold for path viability
   temperature: 0.7, // For thought diversity
-  cacheSize: 1000   // LRU cache size
+  cacheSize: 1000,  // LRU cache size
+  defaultStrategy: 'beam_search' // Default reasoning strategy
 } as const;
