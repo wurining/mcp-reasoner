@@ -15,44 +15,11 @@ A Model Context Protocol (MCP) reasoner implementation with multiple reasoning s
 ## Installation
 
 ```bash
-npm install mcp-reasoner
-```
+git clone https://github.com/frgmt0/mcp-reasoner.git
+cd mcp-reasoner
+npm install
+npm run build
 
-## Usage
-
-```typescript
-import { Reasoner, ReasoningStrategy } from 'mcp-reasoner';
-
-// Create a new reasoner instance
-const reasoner = new Reasoner();
-
-// Use with default strategy (Beam Search)
-const response = await reasoner.processThought({
-  thought: "Initial thought",
-  thoughtNumber: 1,
-  totalThoughts: 3,
-  nextThoughtNeeded: true
-});
-
-// Switch to MCTS strategy
-reasoner.setStrategy(ReasoningStrategy.MCTS);
-
-// Continue reasoning with MCTS
-const nextResponse = await reasoner.processThought({
-  thought: "Next thought",
-  thoughtNumber: 2,
-  totalThoughts: 3,
-  nextThoughtNeeded: true,
-  parentId: response.nodeId
-});
-
-// Get statistics
-const stats = await reasoner.getStats();
-console.log(stats);
-
-// Get best reasoning path
-const bestPath = await reasoner.getBestPath();
-console.log(bestPath);
 ```
 
 ## Reasoning Strategies
@@ -92,49 +59,6 @@ Thoughts are evaluated based on multiple factors:
 - Mathematical/logical expressions
 - Parent-child relationship strength
 - Completion status
-
-## API Reference
-
-### Reasoner Class
-
-Main interface for reasoning operations:
-
-```typescript
-class Reasoner {
-  constructor();
-  
-  async processThought(request: ReasoningRequest): Promise<ReasoningResponse>;
-  async getStats(): Promise<ReasoningStats>;
-  async getBestPath(): Promise<ThoughtNode[]>;
-  setStrategy(strategy: ReasoningStrategy): void;
-  getAvailableStrategies(): ReasoningStrategy[];
-}
-```
-
-### Types
-
-```typescript
-interface ReasoningRequest {
-  thought: string;
-  thoughtNumber: number;
-  totalThoughts: number;
-  nextThoughtNeeded: boolean;
-  parentId?: string;
-  strategyType?: string;
-}
-
-interface ReasoningResponse {
-  nodeId: string;
-  thought: string;
-  score: number;
-  depth: number;
-  isComplete: boolean;
-  nextThoughtNeeded: boolean;
-  possiblePaths?: number;
-  bestScore?: number;
-  strategyUsed?: string;
-}
-```
 
 ## Contributing
 
