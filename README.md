@@ -1,73 +1,83 @@
 # MCP Reasoner
-
-A Model Context Protocol (MCP) reasoner implementation with multiple reasoning strategies including Beam Search and Monte Carlo Tree Search (MCTS).
+A systematic reasoning MCP server implementation for Claude Desktop featuring both Beam Search and Monte Carlo Tree Search (MCTS) capabilities.
 
 <a href="https://glama.ai/mcp/servers/7o94y2zl9v">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/7o94y2zl9v/badge" />
 </a>
 
 ## Features
-
-- Multiple reasoning strategies:
-  - **Beam Search**: Maintains a fixed-width beam of most promising paths
-  - **Monte Carlo Tree Search**: Uses simulation-based search for complex reasoning
-- Flexible strategy switching during runtime
-- Comprehensive metrics and statistics
-- Efficient state management with LRU caching
-- TypeScript implementation with full type safety
+- Dual search strategies:
+  - Beam search with configurable width
+  - MCTS for complex decision spaces
+- Thought scoring and evaluation
+- Tree-based reasoning paths
+- Statistical analysis of reasoning process
+- MCP protocol compliance
 
 ## Installation
-
 ```bash
-git clone https://github.com/frgmt0/mcp-reasoner.git
+git clone https://github.com/Jacck/mcp-reasoner.git
 cd mcp-reasoner
 npm install
 npm run build
-
 ```
 
-## Reasoning Strategies
+## Configuration
+Add to Claude Desktop config:
+```json
+{
+  "mcpServers": {
+    "mcp-reasoner": {
+      "command": "node",
+      "args": ["path/to/mcp-reasoner/dist/index.js"],
+    }
+  }
+}
+```
+
+## Search Strategies
 
 ### Beam Search
+- Maintains fixed-width set of most promising paths
+- Optimal for step-by-step reasoning
+- Best for: Mathematical problems, logical puzzles
 
-The Beam Search strategy maintains a fixed-width beam of the most promising paths through the reasoning space. At each step:
+### Monte Carlo Tree Search
+- Simulation-based exploration of decision space
+- Balances exploration and exploitation
+- Best for: Complex problems with uncertain outcomes
 
-- Evaluates new thoughts
-- Keeps top N paths based on scoring
-- Prunes less promising branches
-- Optimizes for both exploration and exploitation
+  **Note** Monte Carlo Tree Search allowed claude to perform really well on the Arc AGI benchmark (scored 6/10 on a the public test), whereas beam search yielded a (3/10) on the same puzzles.
+  I'd argue for super complex tasks you'd want to direct claude to utilize the MCTS strategy over the beam search.
 
-Configuration options in `CONFIG`:
-- `beamWidth`: Number of paths to maintain (default: 3)
-- `minScore`: Minimum score threshold (default: 0.5)
+## Algorithm Details
+1. Search Strategy Selection
+   - Beam Search: Evaluates and ranks multiple solution paths
+   - MCTS: Uses UCT for node selection and random rollouts
 
-### Monte Carlo Tree Search (MCTS)
+2. Thought Scoring Based On:
+   - Detail level
+   - Mathematical expressions
+   - Logical connectors
+   - Parent-child relationship strength
 
-MCTS uses simulation-based search to explore the reasoning space efficiently:
+3. Process Management
+   - Tree-based state tracking
+   - Statistical analysis of reasoning
+   - Progress monitoring
 
-1. **Selection**: Choose promising nodes using UCT
-2. **Expansion**: Create new thought nodes
-3. **Simulation**: Random rollouts to estimate value
-4. **Backpropagation**: Update node statistics
+## Use Cases
+- Mathematical problems
+- Logical puzzles
+- Step-by-step analysis
+- Complex problem decomposition
+- Decision tree exploration
+- Strategy optimization
 
-Configuration options in `CONFIG`:
-- `maxDepth`: Maximum simulation depth (default: 5)
-- `numSimulations`: Simulations per step (default: 50)
-
-## Evaluation Metrics
-
-Thoughts are evaluated based on multiple factors:
-
-- Logical progression and coherence
-- Complexity and depth of reasoning
-- Mathematical/logical expressions
-- Parent-child relationship strength
-- Completion status
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Future Implementations
+- Implement New Algorithms
+    - Iterative Deepening Depth-First Search (IDDFS)
+    - Alpha-Beta Pruning
 
 ## License
-
 MIT
