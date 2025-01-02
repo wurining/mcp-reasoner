@@ -2,6 +2,9 @@
 
 A Model Context Protocol (MCP) reasoner implementation with multiple reasoning strategies including Beam Search and Monte Carlo Tree Search (MCTS).
 
+<a href="https://glama.ai/mcp/servers/7o94y2zl9v">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/7o94y2zl9v/badge" />
+</a>
 ## Features
 
 - Multiple reasoning strategies:
