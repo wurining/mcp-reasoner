@@ -1,71 +1,89 @@
 # MCP Reasoner
+A systematic reasoning MCP server implementation for Claude Desktop featuring both Beam Search and Monte Carlo Tree Search (MCTS) capabilities.
 
-A systematic reasoning MCP server implementation for Claude Desktop with beam search and thought evaluation capabilities.
+<a href="https://glama.ai/mcp/servers/7o94y2zl9v">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/7o94y2zl9v/badge" />
+</a>
 
 <a href="https://glama.ai/mcp/servers/g71nwrrr8e"><img width="380" height="200" src="https://glama.ai/mcp/servers/g71nwrrr8e/badge" alt="mcp-reasoner MCP server" /></a>
 
 ## Features
-
-- Beam search with configurable width
+- Dual search strategies:
+  - Beam search with configurable width
+  - MCTS for complex decision spaces
 - Thought scoring and evaluation
 - Tree-based reasoning paths
 - Statistical analysis of reasoning process
 - MCP protocol compliance
 
 ## Installation
-
-1. Clone the repository:
 ```bash
 git clone https://github.com/Jacck/mcp-reasoner.git
 cd mcp-reasoner
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Build the project:
-```bash
 npm run build
 ```
 
 ## Configuration
-
 Add to Claude Desktop config:
 ```json
 {
   "mcpServers": {
     "mcp-reasoner": {
       "command": "node",
-      "args": [
-        "path/to/mcp-reasoner/dist/index.js"
-      ]
+      "args": ["path/to/mcp-reasoner/dist/index.js"],
     }
   }
 }
 ```
 
-## Usage
+## Search Strategies
 
-The reasoner can be used with Claude Desktop for solving various problems requiring systematic thinking:
+### Beam Search
+- Maintains fixed-width set of most promising paths
+- Optimal for step-by-step reasoning
+- Best for: Mathematical problems, logical puzzles
 
+### Monte Carlo Tree Search
+- Simulation-based exploration of decision space
+- Balances exploration and exploitation
+- Best for: Complex problems with uncertain outcomes
+
+  **Note** Monte Carlo Tree Search allowed claude to perform really well on the Arc AGI benchmark (scored 6/10 on a the public test), whereas beam search yielded a (3/10) on the same puzzles.
+  I'd argue for super complex tasks you'd want to direct claude to utilize the MCTS strategy over the beam search.
+
+## Algorithm Details
+1. Search Strategy Selection
+   - Beam Search: Evaluates and ranks multiple solution paths
+   - MCTS: Uses UCT for node selection and random rollouts
+
+2. Thought Scoring Based On:
+   - Detail level
+   - Mathematical expressions
+   - Logical connectors
+   - Parent-child relationship strength
+
+3. Process Management
+   - Tree-based state tracking
+   - Statistical analysis of reasoning
+   - Progress monitoring
+
+## Use Cases
 - Mathematical problems
 - Logical puzzles
 - Step-by-step analysis
 - Complex problem decomposition
+- Decision tree exploration
+- Strategy optimization
 
-## Algorithm
-
-The reasoner uses:
-1. Beam search to explore multiple solution paths
-2. Thought scoring based on:
-   - Detail level
-   - Mathematical expressions
-   - Logical connectors
-3. Tree-based state management
-4. Statistical analysis of reasoning process
+## Future Implementations
+- Implement New Algorithms
+    - Iterative Deepening Depth-First Search (IDDFS)
+    - Alpha-Beta Pruning
 
 ## License
+<<<<<<< HEAD
 
+=======
+>>>>>>> pr2
 MIT

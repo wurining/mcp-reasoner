@@ -1,4 +1,4 @@
-import { ThoughtNode } from './types';
+import { ThoughtNode } from './types.js';
 
 class LRUCache<K, V> {
   private cache = new Map<K, V>();
@@ -19,16 +19,27 @@ class LRUCache<K, V> {
   }
 
   set(key: K, value: V): void {
+    // Remove oldest if at capacity
     if (this.cache.size >= this.maxSize) {
-      // Remove oldest (first) entry
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      const firstKey = Array.from(this.cache.keys())[0];
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
     }
+    // Add new value
     this.cache.set(key, value);
   }
 
   clear(): void {
     this.cache.clear();
+  }
+
+  size(): number {
+    return this.cache.size;
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
   }
 }
 
@@ -84,6 +95,10 @@ export class StateManager {
     }
 
     return path;
+  }
+
+  async getAllNodes(): Promise<ThoughtNode[]> {
+    return Array.from(this.nodes.values());
   }
 
   clear(): void {

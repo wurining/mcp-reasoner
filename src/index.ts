@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { ReasoningEngine } from './engine.js';
+import { Reasoner } from './reasoner.js';
+import { ReasoningStrategy } from './strategies/factory.js';
 
 // Initialize server
 const server = new Server(
@@ -18,31 +18,29 @@ const server = new Server(
   }
 );
 
-// Initialize reasoning engine
-const reasoningEngine = new ReasoningEngine();
-
-// Track reasoning history (keeping for backward compatibility)
-const thoughtHistory: Array<{
-  thought: string;
-  thoughtNumber: number;
-  totalThoughts: number;
-  nextThoughtNeeded: boolean;
-}> = [];
+// Initialize reasoner
+const reasoner = new Reasoner();
 
 // Process input and ensure correct types
-function processInput(input: unknown) {
-  const data = input as Record<string, unknown>;
+function processInput(input: any) {
   const result = {
-    thought: String(data.thought || ""),
-    thoughtNumber: Number(data.thoughtNumber || 0),
-    totalThoughts: Number(data.totalThoughts || 0),
-    nextThoughtNeeded: Boolean(data.nextThoughtNeeded)
+    thought: String(input.thought || ""),
+    thoughtNumber: Number(input.thoughtNumber || 0),
+    totalThoughts: Number(input.totalThoughts || 0),
+    nextThoughtNeeded: Boolean(input.nextThoughtNeeded),
+    strategyType: input.strategyType as ReasoningStrategy | undefined
   };
 
   // Validate
-  if (!result.thought) throw new Error("thought must be provided");
-  if (result.thoughtNumber < 1) throw new Error("thoughtNumber must be >= 1");
-  if (result.totalThoughts < 1) throw new Error("totalThoughts must be >= 1");
+  if (!result.thought) {
+    throw new Error("thought must be provided");
+  }
+  if (result.thoughtNumber < 1) {
+    throw new Error("thoughtNumber must be >= 1");
+  }
+  if (result.totalThoughts < 1) {
+    throw new Error("totalThoughts must be >= 1");
+  }
 
   return result;
 }
@@ -51,7 +49,7 @@ function processInput(input: unknown) {
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [{
     name: "mcp-reasoner",
-    description: "A systematic reasoning tool with beam search and thought evaluation",
+    description: "Advanced reasoning tool with multiple strategies including Beam Search and Monte Carlo Tree Search",
     inputSchema: {
       type: "object",
       properties: {
@@ -72,6 +70,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         nextThoughtNeeded: {
           type: "boolean",
           description: "Whether another step is needed"
+        },
+        strategyType: {
+          type: "string",
+          enum: Object.values(ReasoningStrategy),
+          description: "Reasoning strategy to use (beam_search or mcts)"
         }
       },
       required: ["thought", "thoughtNumber", "totalThoughts", "nextThoughtNeeded"]
@@ -94,38 +97,41 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     // Process and validate input
     const step = processInput(request.params.arguments);
-    
-    // Add to both history and reasoning engine
-    thoughtHistory.push(step);
-    const reasoningStep = reasoningEngine.addThought(
-      step.thought,
-      step.thoughtNumber,
-      step.totalThoughts,
-      step.nextThoughtNeeded
-    );
+
+    // Process thought with selected strategy
+    const response = await reasoner.processThought({
+      thought: step.thought,
+      thoughtNumber: step.thoughtNumber,
+      totalThoughts: step.totalThoughts,
+      nextThoughtNeeded: step.nextThoughtNeeded,
+      strategyType: step.strategyType
+    });
 
     // Get reasoning stats
-    const stats = reasoningEngine.getStats();
+    const stats = await reasoner.getStats();
 
     // Return enhanced response
-    const response = {
+    const result = {
       thoughtNumber: step.thoughtNumber,
       totalThoughts: step.totalThoughts,
       nextThoughtNeeded: step.nextThoughtNeeded,
       thought: step.thought,
-      historyLength: thoughtHistory.length,
-      score: reasoningStep.score,
+      nodeId: response.nodeId,
+      score: response.score,
+      strategyUsed: response.strategyUsed,
       stats: {
+        totalNodes: stats.totalNodes,
         averageScore: stats.averageScore,
+        maxDepth: stats.maxDepth,
         branchingFactor: stats.branchingFactor,
-        bestScore: stats.bestScore
+        strategyMetrics: stats.strategyMetrics
       }
     };
 
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(response)
+        text: JSON.stringify(result)
       }]
     };
   } catch (error) {
