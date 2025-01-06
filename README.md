@@ -1,6 +1,9 @@
 # MCP Reasoner
 A reasoning implementation for Claude Desktop that lets you use both Beam Search and Monte Carlo Tree Search (MCTS). tbh this started as a way to see if we could make Claude even better at complex problem-solving... turns out we definitely can.
 
+### Current Version:
+1.0.0
+
 ## Features
 - Two search strategies that you can switch between:
    - Beam search (good for straightforward stuff)
