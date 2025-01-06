@@ -2,7 +2,19 @@
 A reasoning implementation for Claude Desktop that lets you use both Beam Search and Monte Carlo Tree Search (MCTS). tbh this started as a way to see if we could make Claude even better at complex problem-solving... turns out we definitely can.
 
 ### Current Version:
-1.0.0
+**v1.1.0**
+
+#### What's New:
+
+> Added model control over search parameters:
+>
+> beamWidth - lets Claude adjust how many paths to track (1-10)
+> numSimulations - fine-tune MCTS simulation count (1-150)
+
+#### Previous Versions:
+**v1.0.0**
+
+> Initial release with base Beam Search and MCTS implementations
 
 ## Features
 - Two search strategies that you can switch between:
