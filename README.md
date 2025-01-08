@@ -7,15 +7,24 @@ A reasoning implementation for Claude Desktop that lets you use both Beam Search
 #### What's New:
 
 > Added 2 Experimental Reasoning Algorithms:
+>
 >     - `mcts-002-alpha`
+>
 >         - Uses the A* Search Method along with an early *alpha* implementation of a Policy Simulation Layer
+>
 >         - Also includes an early *alpha* implementation of Adaptive Exploration Simulator & Outcome Based Reasoning Simulator
+>
 >     *NOTE* the implementation of these alpha simulators is not complete and is subject to change
+>
 >     - `mcts-002alt-alpha`
+>
 >         - Uses the Bidirectional Search Method along with an early *alpha* implementation of a Policy Simulation Layer
+>
 >         - Also includes an early *alpha* implementation of Adaptive Exploration Simulator & Outcome Based Reasoning Simulator
+>
 >     *NOTE* the implementation of these alpha simulators is not complete and is subject to change
-> 
+
+
 What happened to `mcts-001-alpha` and `mcts-001alt-alpha`?
 > Quite simply: It was useless and near similar to the base `mcts` method. After initial testing the results yielded in basic thought processes was near similar showing that simply adding policy simulation may not have an effect.
 
@@ -28,6 +37,7 @@ So why add Polciy Simulation Layer now?
 > Added model control over search parameters:
 >
 > beamWidth - lets Claude adjust how many paths to track (1-10)
+>
 > numSimulations - fine-tune MCTS simulation count (1-150)
 
 ## Features
